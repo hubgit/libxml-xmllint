@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>libxml-xmllint demo</title>
+    <script src="../webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="libxml-xmllint.html">
+  </head>
+  <body unresolved>
+    <libxml-xmllint></libxml-xmllint>
+    <script>
+    window.addEventListener('polymer-ready', function() {
+        var node = document.querySelector('libxml-xmllint');
+
+        node.status = 'Fetching DTD files…';
+
+        var fetchIndex = fetch('http://git.macropus.org/jats-dtd/publishing/1.0/index.txt').then(function(response) {
+          return response.text();
+        });
+
+        fetchIndex.then(function(lines) {
+          // the schema files
+          lines.trim().split('\n').forEach(function(path) {
+            node.imports.push({
+              path: path,
+              url: 'http://git.macropus.org/jats-dtd/publishing/1.0/' + path
+            });
+          });
+
+          // the file to be validated
+          node.imports.push({
+            path: 'demo.xml',
+            url: 'demo.xml'
+          });
+
+          node.run(['--noent', '--dtdvalid', 'JATS-journalpublishing1.dtd', 'demo.xml']);
+        });
+    });
+    </script>
+  </body>
+</html>
