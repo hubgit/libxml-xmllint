@@ -1,0 +1,52 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<script src="xmllint.js"></script>
+
+<!--
+Element providing libxml2's xmllint
+
+##### Example
+
+    <libxml-xmllint></libxml-xmllint>
+
+@element libxml-xmllint
+@blurb Element providing libxml2's xmllint.
+@status alpha
+@homepage http://github.com/hubgit/libxml-xmllint
+-->
+<polymer-element name="libxml-xmllint" attributes="imports">
+  <template>
+    <link rel="stylesheet" href="libxml-xmllint.css">
+
+    <div id="status">{{ status }}</div>
+    <pre id="lint-container"><code>{{ output.stderr }}</code></pre>
+    <pre id="xml-container"><code>{{ output.stdout }}</code></pre>
+  </template>
+  <script>
+    Polymer({
+      ready: function() {
+        this.imports = [];
+      },
+      fetchImports: function() {
+        return this.imports.map(function(importedFile) {
+          console.log('Fetching', importedFile.path, 'from', importedFile.url);
+
+          return fetch(importedFile.url).then(function(response) {
+            return response.text().then(function(xml) {
+              return { path: importedFile.path, data: xml };
+            });
+          });
+        });
+      },
+      run: function(args) {
+        this.status = 'Fetching imports…';
+
+        Promise.all(this.fetchImports()).then(function(files) {
+          this.status = 'Validating…';
+          this.output = xmllint(args, files);
+          this.status = this.output.stderr ? 'Errors!' : 'Valid!';
+        }.bind(this));
+      }
+    });
+  </script>
+</polymer-element>

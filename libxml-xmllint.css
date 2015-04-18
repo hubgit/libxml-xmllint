@@ -1,0 +1,9 @@
+:host {
+  display: block;
+  font-family: sans-serif;
+}
+
+#xml-container {
+  max-height: 30em;
+  overflow-y: auto;
+}
